@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>European population 1989-1995</title>
+  <meta charset="utf-8">
+  <meta name="description" content="European population 1989-1995">
+  <meta name="author" content="Hodei Iraola">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>European population 1989-1995</h1>
+    <h2>Analysing the evolution of the population</h2>
+    <p>Hodei Iraola<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>The analysed data</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>The European Country population dataset contains data of 17 european countries from 1989 to 1995. </li>
+<li>The included 17 countries are: Austria, Belgium, Denmark, Finland, France, Germany, Iceland, Ireland, Italy, Luxemburg, Netherland, Norway, Portugal, Spain, Sweden, Switzerland and United Kingdom</li>
+<li>The dataset contains 17 observations and 8 variables(country name and 7 population values). </li>
+<li>The dataset has been download from this <a href="http://mathforum.org/workshops/sum96/data.collections/datalibrary/Eur.pop.XL.zip.xls">link</a> at <a href="http://mathforum.org/">MathForum</a></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Map plot</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>The map plot is published using rworldmap. This is the code used for that in server.R, inside renderPlot</li>
+</ul>
+
+<pre><code class="r">output$mapplot &lt;- renderPlot({
+      mapCountryData(malMap, nameColumnToPlot=paste(&quot;NumPop&quot;,input$yearMap,sep=&quot;&quot;), catMethod = &quot;pretty&quot;,
+                     missingCountryCol = gray(.8), mapRegion=&quot;europe&quot;)
+    })
+</code></pre>
+
+<ul>
+<li>Before the shinyServer function, where data is the loaded dataset:</li>
+</ul>
+
+<pre><code class="r">codes.of.origin &lt;- as.vector(as.character(data$Country))
+# Vector of values to be converted
+data$CountryCode &lt;- countrycode(codes.of.origin, &quot;country.name&quot;, &quot;iso3c&quot;)
+
+malMap &lt;- joinCountryData2Map(data, joinCode = &quot;ISO3&quot;,
+                              nameJoinColumn = &quot;CountryCode&quot;)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Table</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>The second tab shows a table with the data used for the project. It has been printed using renderDataTable in server.R:<br></li>
+</ul>
+
+<pre><code class="r">output$mytable = renderDataTable({
+      data
+    })
+</code></pre>
+
+<ul>
+<li>In the ui.R, dataTableOutput is used.</li>
+</ul>
+
+<pre><code class="r">tabPanel(&quot;Table&quot;, dataTableOutput(&#39;mytable&#39;))
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Plot</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>ggplot2 library and render plot have been used to print the time series graphic. In server.R:<br></li>
+</ul>
+
+<pre><code class="r">renderPlot({
+  ggp &lt;- ggplot(countries, aes(year, y = variable, color = variable),environment = environment());
+  ggp &lt;- ggp + geom_line(aes(y = countries$&quot;Austria&quot;, col = &quot;Austria&quot;));
+  gpp
+  })
+</code></pre>
+
+<ul>
+<li>In the ui.R, plotOutput is used.</li>
+</ul>
+
+<pre><code class="r">plotOutput(&quot;plot&quot;)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='The analysed data'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Map plot'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Table'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Plot'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
