@@ -1,101 +1,55 @@
 library(shiny)
-library(UsingR)
-library(countrycode)
-library(gdata)
-library(rworldmap)
-library(ggplot2)
-
-# downloadDataSet <- function() {
-#   fileUrl <- "http://mathforum.org/workshops/sum96/data.collections/datalibrary/Eur.pop.XL.zip.xls"
-#   download.file(fileUrl,"European_Population_DS.xls", method="curl")
-# }
-# downloadDataSet()
-data <- read.xls("European_Population_DS.xls")
-
-#Clean data 
-names(data) <- c("Country","Pop_1989","Pop_1990","Pop_1991","Pop_1992","Pop_1993","Pop_1994","Pop_1995")
-data <- data[2:18,]
-
-data$Country <- as.character(data$Country)
-data$Country[11] <- "Netherlands"
-data$Country <- as.factor(data$Country)
-data$Country <- as.factor(as.character(data$Country))
-data$Pop_1989 <- as.numeric(as.character(data$Pop_1989))
-data$Pop_1990 <- as.numeric(as.character(data$Pop_1990))
-data$Pop_1991 <- as.numeric(as.character(data$Pop_1991))
-data$Pop_1992 <- as.numeric(as.character(data$Pop_1992))
-data$Pop_1993 <- as.numeric(as.character(data$Pop_1993))
-data$Pop_1994 <- as.numeric(as.character(data$Pop_1994))
-data$Pop_1995 <- as.numeric(as.character(data$Pop_1995))
-
-codes.of.origin <- as.vector(as.character(data$Country))
-# Vector of values to be converted
-data$CountryCode <- countrycode(codes.of.origin, "country.name", "iso3c")
-
-malMap <- joinCountryData2Map(data, joinCode = "ISO3",
-                              nameJoinColumn = "CountryCode")
-# This will join your malDF data.frame to the country map data
-
-malMap$NumPop1989 <- as.numeric(as.character(malMap$Pop_1989))
-malMap$NumPop1990 <- as.numeric(as.character(malMap$Pop_1990))
-malMap$NumPop1991 <- as.numeric(as.character(malMap$Pop_1991))
-malMap$NumPop1992 <- as.numeric(as.character(malMap$Pop_1992))
-malMap$NumPop1993 <- as.numeric(as.character(malMap$Pop_1993))
-malMap$NumPop1994 <- as.numeric(as.character(malMap$Pop_1994))
-malMap$NumPop1995 <- as.numeric(as.character(malMap$Pop_1995))
-
-countryList <- as.list(data$Country)
-countries <- data.frame(1989:1995)
-for(i in 1:length(countryList)){
-  countries <- cbind(countries,as.integer(data[data$Country==as.character(countryList[[i]][1]),2:8]))
-}
-
-names(countries) <- c("year",as.character(data$Country))
-
-shinyServer(
-  function(input, output) {
-    output$mytable = renderDataTable({
-      data
-    })
-    
-    output$mapplot <- renderPlot({
-      mapCountryData(malMap, nameColumnToPlot=paste("NumPop",input$yearMap,sep=""), catMethod = "pretty",
-                     missingCountryCol = gray(.8), mapRegion="europe")
-    })
-    
-    output$testplot <- renderPlot({
-      mapCountryData(malMap, nameColumnToPlot=paste("NumPop",input$yearMap,sep=""), catMethod = "pretty",
-                     missingCountryCol = gray(.8), mapRegion="europe")
-    })
-    
-    output$testplot <- renderPlot({
-      countryList <- input$countryList
-      ggp <- ggplot(countries, aes(year, y = variable, color = variable),environment = environment()) 
-      for(i in 1:length(countryList)){
-        countryName <- as.character(countryList[[i]][1])
-        
-        switch(countryName, 
-               Austria={ggp <- ggp + geom_line(aes(y = countries$"Austria", col = "Austria"), environment=environment())},
-               Belgium={ggp <- ggp + geom_line(aes(y = countries$"Belgium", col = "Belgium"))},
-               Denmark={ggp <- ggp + geom_line(aes(y = countries$"Denmark", col = "Denmark"))},
-               Finland={ggp <- ggp + geom_line(aes(y = countries$"Finland", col = "Finland"))},
-               France={ggp <- ggp + geom_line(aes(y = countries$"France", col = "France"))},
-               Germany={ggp <- ggp + geom_line(aes(y = countries$"Germany", col = "Germany"))},
-               Iceland={ggp <- ggp + geom_line(aes(y = countries$"Iceland", col = "Iceland"))},
-               Ireland={ggp <- ggp + geom_line(aes(y = countries$"Ireland", col = "Ireland"))},
-               Italy={ggp <- ggp + geom_line(aes(y = countries$"Italy", col = "Italy"))},
-               Luxemburg={ggp <- ggp + geom_line(aes(y = countries$"Luxemburg", col = "Luxemburg"))},
-               Netherlands={ggp <- ggp + geom_line(aes(y = countries$"Netherlands", col = "Netherlands"))},
-               Norway={ggp <- ggp + geom_line(aes(y = countries$"Norway", col = "Norway"))},
-               Portugal={ggp <- ggp + geom_line(aes(y = countries$"Portugal", col = "Portugal"))},
-               Spain={ggp <- ggp + geom_line(aes(y = countries$"Spain", col = "Spain"))},
-               Sweden={ggp <- ggp + geom_line(aes(y = countries$"Sweden", col = "Sweden"))},
-               Switzerland={ggp <- ggp + geom_line(aes(y = countries$"Switzerland", col = "Switzerland"))},
-               "United Kingdom"={ggp <- ggp + geom_line(aes(y = countries$"United Kingdom", col = "United Kingdom"))},
-              {}
-        ) 
-      }
-    ggp
-    })
-  }
+shinyUI(
+  pageWithSidebar(
+    headerPanel("European countries population(1989-1995)"),
+    sidebarPanel(
+      h1('Analysis of population in the country'),
+      p('This shinyApp shows european countries population data between 1989 and 1995.'),
+      p('The included 17 countries are: Austria, Belgium, Denmark, Finland, France, Germany, Iceland, Ireland, Italy, Luxemburg, Netherland, Norway, Portugal, Spain, Sweden, Switzerland, United Kingdom'),
+      p('The dataset was published in MathForum'),
+      a("Math Forum", href="http://mathforum.org/"),
+      p('The dataset can be found in the following link.'),
+      a("Click Here to Download the dataset", href="http://mathforum.org/workshops/sum96/data.collections/datalibrary/Eur.pop.XL.zip.xls")
+    ),
+    mainPanel(
+      
+      tabsetPanel(
+        tabPanel("Home",
+                 br(),
+                 h1('Analysis of population in the country'),
+                 br(),p('There are different options to see the introduced data.'),
+                 br(),p('In the tab Map Plot you can select the year and the data will be shown in a map.'),
+                 br(),p('In the tab Table you can visualize the used data.'),
+                 br(),p('Finally, in the tab plot you can see the progress of the population in each country. You can select the countries that you want to visualize.')),
+        tabPanel("Map Plot", plotOutput("mapplot"),radioButtons(inputId="yearMap", "Select year to show:",
+                                                                c("1989" = 1989,
+                                                                  "1990" = 1990,
+                                                                  "1991" = 1991,
+                                                                  "1992" = 1992,
+                                                                  "1993" = 1993,
+                                                                  "1994" = 1994,
+                                                                  "1995" = 1995), inline=T)),
+        tabPanel("Table", dataTableOutput('mytable')),
+        tabPanel("Plot", plotOutput("plot"),checkboxGroupInput("countryList", "Countries:",
+                                                               c("Austria"="Austria",
+                                                                 "Belgium"="Belgium",
+                                                                 "Denmark"="Denmark",
+                                                                 "Finland"="Finland",
+                                                                 "France"="France",
+                                                                 "Germany"="Germany",
+                                                                 "Iceland"="Iceland",
+                                                                 "Ireland"="Ireland",
+                                                                 "Italy"="Italy",
+                                                                 "Luxemburg"="Luxemburg",
+                                                                 "Netherlands"="Netherlands",
+                                                                 "Norway"="Norway",
+                                                                 "Portugal"="Portugal",
+                                                                 "Spain"="Spain",
+                                                                 "Sweden"="Sweden",
+                                                                 "Switzerland"="Switzerland",
+                                                                 "United Kingdom"="United Kingdom"),
+                                                               selected="Austria", inline=T))
+      )
+    )
+  )
 )

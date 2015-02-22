@@ -63,19 +63,15 @@ shinyServer(
                      missingCountryCol = gray(.8), mapRegion="europe")
     })
     
-    output$testplot <- renderPlot({
-      mapCountryData(malMap, nameColumnToPlot=paste("NumPop",input$yearMap,sep=""), catMethod = "pretty",
-                     missingCountryCol = gray(.8), mapRegion="europe")
-    })
     
-    output$testplot <- renderPlot({
+    output$plot <- renderPlot({
       countryList <- input$countryList
       ggp <- ggplot(countries, aes(year, y = variable, color = variable),environment = environment()) 
       for(i in 1:length(countryList)){
         countryName <- as.character(countryList[[i]][1])
         
         switch(countryName, 
-               Austria={ggp <- ggp + geom_line(aes(y = countries$"Austria", col = "Austria"), environment=environment())},
+               Austria={ggp <- ggp + geom_line(aes(y = countries$"Austria", col = "Austria"))},
                Belgium={ggp <- ggp + geom_line(aes(y = countries$"Belgium", col = "Belgium"))},
                Denmark={ggp <- ggp + geom_line(aes(y = countries$"Denmark", col = "Denmark"))},
                Finland={ggp <- ggp + geom_line(aes(y = countries$"Finland", col = "Finland"))},
